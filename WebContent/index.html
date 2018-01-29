@@ -1,0 +1,246 @@
+<!-- <%-- <%@page import="java.net.InetAddress"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%> --%> -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>HIFLY</title>
+
+<link rel="icon" href="images/favicon.ico" type="image/x-icon">
+<link rel="stylesheet" href="css/grid.css">
+<link rel="stylesheet" href="css/style.css?ver=2">
+<link rel="stylesheet" href="css/touchTouch.css">
+<link rel="stylesheet" href="css/camera.css">
+
+<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+
+<script src="js/jquery-migrate-1.2.1.js"></script>
+<script src='js/camera.js'></script>
+<script src="js/touchTouch.jquery.js"></script>
+<script src="js/jquery.stellar.js"></script>
+<script src="js/script.js"></script>
+<script src='//maps.googleapis.com/maps/api/js?v=3.exp&amp;sensor=false'></script>
+<script src="js/jquery.mobile.customized.min.js"></script>
+<script src="js/wow.js"></script>
+<script>
+	$(document).ready(function() {
+		if ($('html').hasClass('desktop')) {
+			new WOW().init();
+		}
+	});
+</script>
+    <style>
+       #map {
+        height: 400px;
+        width: 100%;
+       }
+    </style>
+</head>
+<body class="index-1">
+	<!--==============================header=================================-->
+	<header id="header">
+	<div id="stuck_container">
+		<div class="container">
+			<div class="row">
+				<div class="grid_12">
+					<h1>
+						<a href="index.html">HIFLY<span>Streaming
+								Service</span></a>
+					</h1>
+					<nav>
+					<ul class="sf-menu">
+						<li class="current"><a	href="index.html" id="home">Service</a></li>
+					</ul>
+					</nav>
+				</div>
+			</div>
+		</div>
+	</div>
+	</header>
+
+	<!--=======content================================-->
+	<section id="content">
+	<div class="full-width-container block-1">
+		<div class="container">
+			<div class="row" style="margin: 0px 0px 0px 0px;">
+				<div class="grid_12">
+					<header>
+					<h2>
+						<span id="stream_title">Show Stream</span>
+					</h2>
+					</header>
+				</div>		
+				 <div style="position: relative; display: block; height: 0; padding: 0; overflow: hidden; padding-bottom: 56.25%; border: 1px solid red">
+					 <!-- player!!! -->
+					<video src="images/2.mp4" id="player" style="position: absolute; top: 0; left: 0; bottom: 0; height: 100%; width: 100%; border: 0;" autoplay controls>
+					</video>
+				</div> 
+				<div id="chat_container">
+    
+    <!--     채팅창 -->
+    <div id="_chatbox" style="display: none;">
+        <fieldset>
+            <div id="messageWindow" style="border:1px solid gray; height:200px; overflow-x:hidden; overflow-y:auto;"></div>
+            <br /> <input id="inputMessage" type="text" onkeyup="enterkey()" />
+            <input type="submit" value="send" onclick="send()" />
+        </fieldset>
+    </div>
+    
+    <img class="chat" src="./images/JKTALK.png" alt="없음"/>
+	<span id="chat_describe">채팅창을 보려면 이미지 버튼을 클릭하세요.</span>
+<!-- 채팅창 포커스 관련 -->
+<script>
+	$("#messageWindow").click(function(){
+   		$("#inputMessage").focus();
+	});
+	$("#messageWindow").hover(function(){		
+	    $("#messageWindow").bind('mousewheel', function(e){
+            if (e.originalEvent.wheelDelta /120 > 0) 
+            {
+                var elem = document.getElementById('messageWindow');
+                elem.scrollTop -= 5;
+                
+                e.preventDefault();
+                e.stopPropagation();
+             }
+            else
+            {
+                var elem = document.getElementById('messageWindow');
+                elem.scrollTop += 5;
+                
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+	    });
+	});
+</script>
+
+<!-- 말풍선아이콘 클릭시 채팅창 열고 닫기 -->
+<script>
+    $(".chat").on({
+        "click" : function() {
+            if ($(this).attr("src") == "./images/JKTALK.png") {
+                $(".chat").attr("src", "./images/JKTALKX.png");
+                $("#_chatbox").css("display", "block");
+                $("#chat_describe").html("채팅창을 닫으려면 이미지 버튼을 클릭하세요.<br>/ID OOO 를 이용해 귓속말을 할 수 있습니다.");
+            } 
+            else if ($(this).attr("src") == "./images/JKTALKX.png") {
+                $(".chat").attr("src", "./images/JKTALK.png");
+                $("#_chatbox").css("display", "none");
+                $("#chat_describe").html("채팅창을 보려면 이미지 버튼을 클릭하세요.");
+            }
+        }
+    });
+</script>
+
+<script>
+    $(".map").on({
+        "click" : function() {
+            if ($(this).attr("src") == "./images/map.png") {
+                $(".map").attr("src", "./images/mapX.png");
+                $("#_mapbox").css("display", "block");
+            } 
+            else if ($(this).attr("src") == "./images/mapX.png") {
+                $(".map").attr("src", "./images/map.png");
+                $("#_mapbox").css("display", "none");
+            }
+        }
+    });
+</script>
+
+<script type="text/javascript">
+    var textarea = document.getElementById("messageWindow");
+    var webSocket = new WebSocket('ws://223.194.159.163:80/StreammingPage/broadcasting');
+    var inputMessage = document.getElementById('inputMessage');
+    webSocket.onerror = function(event) {
+        onError(event)
+    };
+    webSocket.onopen = function(event) {
+        onOpen(event)
+        
+        var elem = document.getElementById('messageWindow');
+        elem.scrollTop = elem.scrollHeight;
+    };
+    webSocket.onmessage = function(event) {
+        onMessage(event)
+        
+        var elem = document.getElementById('messageWindow');
+        elem.scrollTop = elem.scrollHeight;
+    };
+    function onMessage(event) {
+        var message = event.data.split("|");
+        var sender = message[0];
+        var content = message[1];
+        if (content == "") {
+            
+        } else {
+            if (content.match("/")) {
+                if (content.match(("/" + $("#chat_id").val()))) {
+                    var temp = content.replace("/" + $("#chat_id").val(), "(귓속말) :").split(":");
+                    if (temp[1].trim() == "") {
+                    } else {
+                        $("#messageWindow").html($("#messageWindow").html() + "<p class='whisper' style='color:blue;'>"
+                            + sender + content.replace("/" + $("#chat_id").val(), "(귓속말) :") + "</p>");
+                    }
+                } else {
+                }
+            } else {
+                if (content.match("!")) {
+                    $("#messageWindow").html($("#messageWindow").html()
+                        + "<p class='chat_content'><b class='impress'>" + sender + " : " + content + "</b></p>");
+                } else {
+                    $("#messageWindow").html($("#messageWindow").html()
+                        + "<p class='chat_content'>" + sender + " : " + content + "</p>");
+                }
+            }
+        }	        
+    }
+    function onOpen(event) {
+        $("#messageWindow").html("<p class='chat_content'>채팅에 참여하였습니다.</p>");
+    }
+    function onError(event) {
+        alert(event.data);
+    }
+    function send() {
+        if (inputMessage.value == "") {
+        } 
+        else {
+            $("#messageWindow").html($("#messageWindow").html()
+                + "<p class='chat_content'>나 : " + inputMessage.value + "</p>");
+        }
+        webSocket.send($("#chat_id").val() + "|" + inputMessage.value);
+        inputMessage.value = "";
+        
+		//채팅이 많아져 스크롤바가 넘어가더라도 자동적으로 스크롤바가 내려가게함
+        var elem = document.getElementById('messageWindow');
+        elem.scrollTop = elem.scrollHeight;
+    }
+    //엔터키를 통해 send함
+    function enterkey() {
+        if (window.event.keyCode == 13) {
+            send();
+        }
+    }
+</script>
+				</div>
+			</div>
+		</div>
+	</div>
+	</section>
+
+	<!--=======footer=================================-->
+<footer id="footer">
+<div class="container">
+	<div class="row">
+		<div class="grid_12">
+			<div class="copyright">
+				<pre>© <span id="copyright-year"></span> |  HIFLY</pre>
+			</div>
+		</div>
+	</div>
+</div>
+</footer>
+</body>
+</html>
